@@ -1,0 +1,33 @@
+textarea {
+    width: 80%;
+    height: 200px;
+}
+
+/* Inline messages */
+div.message {
+    padding: 15px;
+    background: #B2F78B;
+    border: 2px solid #55D909;
+    margin: 15px;
+}
+
+div.message.error {
+    background: #FF9696;
+    border-color: #D40404;
+}
+
+div.braille table td {
+    padding: 5px;
+    font-size:3px;
+    margin: 2px;
+    background-color: #EBEBEB;
+}
+
+div.braille table {
+    float: left;
+    background-color: #000;
+}
+
+div.braille table td.dot {
+    background-color: #FFFB00;
+}
