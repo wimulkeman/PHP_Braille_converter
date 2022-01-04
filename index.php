@@ -10,7 +10,10 @@ define('PR', PROJECT_ROOT);
  */
 // Vang af waar naar verwezen wordt
 $requestUri = $_SERVER['REQUEST_URI'];
-list($zero, $requestPath['controller'], $requestPath['action']) = explode('/', $requestUri);
+if (count(explode('/', $requestUri)) > 2) {
+    list($zero, $requestPath['controller'], $requestPath['action']) = explode('/', $requestUri);
+}
+
 // Controleer op de standaard waarden
 if (empty($requestPath['controller'])) {
     $requestPath['controller'] = 'home';
@@ -38,7 +41,7 @@ $responseHandler->setVars(
     array(
         'pageTitle' => 'Braille converter',
         'pageSubject' => $ucfirstControllerName,
-    )    
+    )
 );
 
 // Maak de view variabelen beschikbaar
