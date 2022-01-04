@@ -1,5 +1,5 @@
 <?php
-// Maak van elk stukje een eigen braille blok
+// Give every character its own block
 $braillePiecesWrapper = <<<HTML
 <table>
     <tr>
@@ -24,7 +24,7 @@ $braillePiece = <<<HTML
 </td>
 HTML;
 
-// Zet de braille om in html
+// Convert the Braille bit notation to a HTML display
 $brailleHtml = '';
 if (!empty($braille)) {
     $brailleHtml .= '<div>';
@@ -40,10 +40,8 @@ if (!empty($braille)) {
             continue;
         }
 
-       // Hak de string in blokjes braille
         $strPieces = str_split($piece['braille'], 6);
         foreach ($strPieces as $strPiece) {
-            // Zet de binaire waarden om naar een stip
             $dot1 = ($strPiece[0] == '1') ? 'dot' : '' ;
             $dot2 = ($strPiece[1] == '1') ? 'dot' : '' ;
             $dot3 = ($strPiece[2] == '1') ? 'dot' : '' ;
@@ -51,7 +49,6 @@ if (!empty($braille)) {
             $dot5 = ($strPiece[4] == '1') ? 'dot' : '' ;
             $dot6 = ($strPiece[5] == '1') ? 'dot' : '' ;
 
-            // Voeg het HTML gedeelte toe
             $braillePieces[] = sprintf($braillePiece, $dot1, $dot2, $dot3, $dot4, $dot5, $dot6);
         }
 
@@ -60,7 +57,6 @@ if (!empty($braille)) {
     $brailleHtml .= '</div>';
 }
 
-// Bouw de html pagina op
 $output = <<<HTML
 <html>
     <head>
@@ -70,13 +66,13 @@ $output = <<<HTML
     <body>
         <h1>Braille converter</h1>
         $messages
-        <p>Terug naar <a href="/" title="Terug naar de homepagina">home</a></p>
+        <p>Back to <a href="/" title="Back to the homepage">home</a></p>
         <div class="text">
-            <h2>Uw tekst:</h2>
+            <h2>Your text:</h2>
             $text
         </div>
         <div class="braille">
-            <h2>De braille vertaling:</h2>
+            <h2>The Braille notation:</h2>
             $brailleHtml
         </div>
     </body>

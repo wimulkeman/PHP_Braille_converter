@@ -1,20 +1,17 @@
 <?php
-/**
- * Default waarden
- */
 define('PROJECT_ROOT', dirname(__FILE__));
 define('PR', PROJECT_ROOT);
 
 /**
  * Routing
  */
-// Vang af waar naar verwezen wordt
+// Fetch the route values
 $requestUri = $_SERVER['REQUEST_URI'];
 if (count(explode('/', $requestUri)) > 2) {
     list($zero, $requestPath['controller'], $requestPath['action']) = explode('/', $requestUri);
 }
 
-// Controleer op de standaard waarden
+// Fall back to default values if none where provided
 if (empty($requestPath['controller'])) {
     $requestPath['controller'] = 'home';
 }
@@ -25,7 +22,7 @@ if (empty($requestPath['action'])) {
 /**
  * Controller
  */
-// Laad de juiste controller in
+// Decide which controller to use
 $controllerName = $requestPath['controller'];
 $ucfirstControllerName = ucfirst($controllerName);
 $methodName = $requestPath['action'];
@@ -34,7 +31,7 @@ include_once("controllers/$controllerName.class.php");
 $controller = new $ucfirstControllerName();
 $controller->$methodName();
 
-// Voeg de opgegeven viewVars samen
+// Merge the provided viewVars
 require_once(PR . '/handlers/responseHandler.class.php');
 $responseHandler = ResponseHandler::init();
 $responseHandler->setVars(
@@ -44,25 +41,24 @@ $responseHandler->setVars(
     )
 );
 
-// Maak de view variabelen beschikbaar
+// Make the viewVars available for the upcoming view(s)
 extract($responseHandler->getVars());
 
 /**
  * View
  */
-// De basis variabelen
 define('RESOURCES_BASE', '/resources/');
 $base = array(
     'css' => RESOURCES_BASE . 'css/',
     'javascript' => RESOURCES_BASE . 'js/'
 );
 
-// Haal eventuele berichten op
+// Fetch messages if provided
 $messagesArray = $responseHandler->messages;
-// Zet de berichten om naar html
+// Convert the message to HTML
 include_once(PR."/views/elements/messages.php");
 
-// Laad de view in
+// Load the view
 include_once(PR."/views/$controllerName/$methodName.php");
 
 echo $output;

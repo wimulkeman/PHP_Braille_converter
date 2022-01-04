@@ -1,31 +1,27 @@
 <?php
 /**
- * De request handler maakt de binnenkomende data makkelijk benaderbaar
- *
  * @author WIM
  */
 class RequestHandler
 {
     /**
-     * De opgegveven parameters bij de aanvraag
+     * Provided request params
      *
      * @var array
      */
     public $requestParam = array();
 
     /**
-     * In deze variabele zal de instantie van deze class worden opgeslagen
+     * Singleton instance
      *
      * @var object
      */
     private static $_instanceOfMe;
 
     /**
-     * De construct van deze class is private om te voorkomen dat hij van buitenaf
-     * aangeroepen kan worden
+     * The construct is made private to force users in using the class as a
+     * singleton
      *
-     * @return void
-     * @access private
      * @author WIM
      */
     private function __construct()
@@ -33,28 +29,26 @@ class RequestHandler
     }
 
     /**
-     * Deze functie moet aangeroepen worden om een instantie van deze class te kunnen
-     * verkrijgen
+     * Initialize the class for the first time, or get the singleton instance
      *
-     * @return object  Een instantie van deze class
-     * @access public
+     * @return self An instance of the class
      * @author WIM
      */
     public static function init()
     {
-        // Controleer of de class al geiniteerd is door een andere aanroep
+        // Initialize the class if not yet available
         if (empty(self::$_instanceOfMe)) {
             self::$_instanceOfMe = new self;
         }
 
-        // Geef een initiatie van de class terug
+        // Return the class instance
         return self::$_instanceOfMe;
     }
 
     /**
-     * Haal de aangevraagde parameters op
+     * Retrieve the request params
      *
-     * @return array  De opgegeven request parameters
+     * @return array  De provided request params
      * @access public
      * @author WIM
      */

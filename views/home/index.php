@@ -8,12 +8,12 @@ $output = <<<HTML
     </head>
     <body>
         <h1>Braille converter</h1>
-        <p>Op deze pagina kunt u tekst om laten zetten naar braille.</p>
+        <p>On this page you can view how your text would be converted to Braille notation.</p>
         $messages
         <form action="/braille/convert" method="post">
-            <h2>Uw tekst:</h2>
+            <h2>Your text:</h2>
             <textarea name="text">$text</textarea><br/>
-            <input type="submit" value="Omzetten">
+            <input type="submit" value="Convert">
         </form>
     </body>
 </html>

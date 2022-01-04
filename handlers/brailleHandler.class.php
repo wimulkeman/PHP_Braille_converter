@@ -1,12 +1,12 @@
 <?php
 /**
- * De braille handler regelt alle converteringen voor het omzetten van tekst naar braille
+ * The BrailleHandler is used for converting text to a Braille notation.
  *
- * De reactie van de converter acties in deze class bestaat uit de volgende indeling
+ * The convertion methods of this class will use the following response:
  *
  * array(
  *      0 => array(
- *          'text' => [tekst],
+ *          'text' => [text],
  *          'braille' => [braille]
  *      ),
  *      1 => array(
@@ -19,11 +19,14 @@
 class BrailleHandler
 {
     /**
-     * Het braille alfabet
-     * De verdeling van de punten ten opzichte van de 0/1 notatie is bij bijvoorbeeld
-     * de n is:
-     * Braille: Nummering:      Bitnotatie:
-     * o o      32 16    = 56   110110
+     * The Braille alphabet.
+     *
+     * Characters are written like a bitwise notation substituting the dots in the Braille
+     * notation.
+     *
+     * This corresponds as following, in this example for the letter n:
+     * Braille: Numbering:          Bitwise notation:
+     * o o      32 16       = 56    110110
      * - o      8  4
      * o -      2  1
      *
@@ -40,11 +43,10 @@ class BrailleHandler
     );
 
     /**
-     * De braille nummering
-     * Voor de verdeling, zie het braille alfabet
+     * Braille numbers
+     * For explanation about how its written, see the alphabet property
      *
      * @var array
-     * @access public
      */
     public $brailleIntegers = array(
         1 => '100000', 2 => '101000', 3 => '110000', 4 => '110100', 5 => '100100',
@@ -52,11 +54,10 @@ class BrailleHandler
     );
 
     /**
-     * Speciale tekens in braille
-     * Voor de verdeling, zie het braille alfabet
+     * Braille special characters
+     * For explanation about how its written, see the alphabet property
      *
      * @var array
-     * @access public
      */
     public $brailleSpecialCharacters = array(
         'capital' =>    '010001',
@@ -77,68 +78,60 @@ class BrailleHandler
     );
 
     /**
-     * In deze variabele zal de instantie van deze class worden opgeslagen
+     * Keeps singleton of the class
      *
      * @var object
      */
     private static $_instanceOfMe;
 
     /**
-     * De construct van deze class is private om te voorkomen dat hij van buitenaf
-     * aangeroepen kan worden
+     * The construct is made private to force users in using the class as a
+     * singleton
      *
-     * @return void
-     * @access private
      * @author WIM
      */
     private function __construct()
     {
-        // Laad de benodigde bestanden in
         require_once(PR . '/handlers/responseHandler.class.php');
 
-        // Initieer de request en de braille components
         $this->responseHandler = ResponseHandler::init();
     }
 
     /**
-     * Deze functie moet aangeroepen worden om een instantie van deze class te kunnen
-     * verkrijgen
+     * Initialize the class for the first time, or get the singleton instance
      *
-     * @return object  Een instantie van deze class
-     * @access public
+     * @return self An instance of the class
      * @author WIM
      */
     public static function init()
     {
-        // Controleer of de class al geiniteerd is door een andere aanroep
+        // Initialize the class if not yet available
         if (empty(self::$_instanceOfMe)) {
             self::$_instanceOfMe = new self();
         }
 
-        // Geef een initiatie van de class terug
+        // Return the class instance
         return self::$_instanceOfMe;
     }
 
     /**
-     * Zet een stuk tekst om naar braille
+     * Convert the text to the Braille bit notation
      *
-     * @param string $text Het stuk tekst dat omgezet moet worden
+     * @param string $text The text that needs to be converted
      *
-     * @return string De braille weergave voor de tekst
+     * @return string The bit notation for displaying the text as Braille
      * @access array
      * @author WIM
      */
     public function convertText($text)
     {
-        // Het eindresultaat
         $output = array();
 
-        // Haal eerst alle paragrafen uit de tekst
+        // Split the text on paragraphs
         $paragraphs = explode("\n", $text);
 
-        // Loop door de paragrafen heen en zet deze om
         foreach ($paragraphs as $paragraph) {
-            // Kijk of er sprake is van een break punt
+            // Check if text is present in the paragraph
             if (empty($paragraph)) {
                 $output[] = array(
                     'special' => 'break'
@@ -147,7 +140,7 @@ class BrailleHandler
             }
 
             $braille = $this->convertParagraph($paragraph);
-            // Plaats na elk stuk weer een enter om de explode werking op te heffen
+            // Always add an enter at the end to signal the end of the paragraph
             $braille[] = array(
                 'special' => 'break'
             );
@@ -158,11 +151,11 @@ class BrailleHandler
     }
 
     /**
-     * Zet een paragraaf om naar braille
+     * Convert the paragraph text to Braille
      *
-     * @param string $paragraph De paragraaf die omgezet moet worden
+     * @param string $paragraph The text within the paragraph
      *
-     * @return string De braille weergave voor de paragraaf
+     * @return string The Braille (bitwise) representation of the text
      * @access array
      * @author WIM
      */
@@ -172,25 +165,23 @@ class BrailleHandler
     }
 
     /**
-     * Zet een zin om naar braille
+     * Convert the sentence to Braille
      *
-     * @param string $sentence De zin die omgezet moet worden
+     * @param string $sentence Content of the sentence
      *
-     * @return array De braille weergave voor de zin
+     * @return array The Braille (bitwise) representation of the sentence
      * @access array
      * @author WIM
      */
     public function convertSentence($sentence)
     {
-        // Het eindresultaat
         $output = array();
 
-        // Haal eerst alle woorden uit de tekst
+        // Split the words withing the sentence
         $words = explode(" ", $sentence);
 
-        // Loop door de woorden heen en zet deze om
         foreach ($words as $word) {
-            // Kijk of er sprake is van een break punt
+            // Add a space if the user has add double spaces
             if (empty($word)) {
                 $output[] = array(
                     'special' => 'space'
@@ -199,7 +190,7 @@ class BrailleHandler
             }
 
             $output[] = $this->convertWord($word);
-            // Plaats na elk stuk weer een spatie om de explode werking op te heffen
+            // Restore the space removed during the explode
             $output[] = array(
                 'special' => 'space'
             );
@@ -209,35 +200,32 @@ class BrailleHandler
     }
 
     /**
-     * Zet een woord om naar braille
+     * Convert a word to the Braille notation
      *
-     * @param string $word Het woord dat omgezet moet worden
+     * @param string $word
      *
-     * @return array De braille weergave voor het woord
-     * @access array
+     * @return array The Braille representation for the word
      * @author WIM
      */
     public function convertWord($word)
     {
-        // De geformateerde braille string
         $braille = '';
 
-        // Geeft aan of een bepaalde indicator wordt toegevoegd
+        // Keep track if a special indicator is required in the notation
         $indicatorAdded = false;
         $indicator = '';
 
-        // Kijk of het woord alleen cijfers is
+        // Check if the word only contains numbers
         if (preg_match('/^[0-9]+$/', $word)) {
             $indicatorAdded = true;
             $indicator = $this->brailleSpecialCharacters['integer'];
         }
 
-        // Zet het woord per karakter om
+        // Convert the word
         for ($i = 0; $i < strlen($word); ++ $i) {
             $braille .= $this->convertCharacter($word[$i], $indicatorAdded);
         }
 
-        // Geef de uitkomst terug
         return array(
             'text' => $word,
             'braille' => $indicator . $braille
@@ -245,42 +233,38 @@ class BrailleHandler
     }
 
     /**
-     * Zet het karakter om naar een braille teken
+     * Convert the character to the Braille notation
      *
-     * @param string  $letter         De letter die omgezet moet worden
-     * @param boolean $indicatorAdded Geeft aan of al een indicatie teken is toegevoegd
-     *                                (nummer | hoofdletter)
+     * @param string  $letter
+     * @param boolean $indicatorAdded Use a indicator in case of a numbers or capital letter
      *
-     * @return array De braille weergave voor de letter
-     * @access array
+     * @return array The Braille representation for the letter
      * @author WIM
      */
     public function convertCharacter($character, $indicatorAdded = false)
     {
-        // De geformateerde braille string
         $braille = '';
 
         if (empty($character)) {
             return $braille;
         }
 
-        // Kijk wat van soort karakter het is
-        // Voor letters
+        // Check the type of character
+        // Alphabetic
         if (preg_match('/[a-z]/i', $character)) {
-            // Controleer of het om een hoofdletter gaat en of dit aangegeven moet worden
+            // Is it a capital letter and no indicator added yet?
             if ($indicatorAdded == false && preg_match('/[A-Z]/', $character)) {
                 $braille .= $this->brailleSpecialCharacters['capital'];
             }
 
             $character = strtolower($character);
 
-            // Zet het letter om naar het alfabet
             return $braille . $this->brailleAlphabet[$character];
         }
 
-        // Voor getallen
+        // Numeric
         if (preg_match('/[0-9]/', $character)) {
-            // Controleer of het om een hoofdletter gaat en of dit aangegeven moet worden
+            // Is a indicator required?
             if ($indicatorAdded == false) {
                 $braille .= $this->brailleSpecialCharacters['integer'];
             }
@@ -288,14 +272,14 @@ class BrailleHandler
             return $braille . $this->brailleIntegers[$character];
         }
 
-        // Kijk of het speciale teken omgezet kan worden
+        // Special character
         if (!empty($this->brailleSpecialCharacters[$character])) {
             return $braille . $this->brailleSpecialCharacters[$character];
 
         }
 
-        // Als niks kan worden gevonden, Geef dan een foutmelding en retourneer een lege string
-        $this->responseHandler->setMessage("Het volgende karakter werd niet herkent: $character", 'error');
+        // Fallback: if the character is unrecognized show the character to the user
+        $this->responseHandler->setMessage("The following character could not be converted: $character", 'error');
 
         return $braille;
     }

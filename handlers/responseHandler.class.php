@@ -1,38 +1,36 @@
 <?php
 /**
- * De response handler zorgt voor de uiteindelijke communicatie naar de gebruiker toe
+ * The ResponseHandler is used for the communication back to the user
  *
  * @author WIM
  */
 class ResponseHandler
 {
     /**
-     * De berichten die getoond moeten worden aan de gebruiker
+     * Messages that needs to be shown to the user
      *
      * @var array
      */
     public $messages = array();
 
     /**
-     * De te gebruiken variabelen in de view
+     * Variables required in the views
      *
      * @var array
      */
     public $viewVars = array();
 
     /**
-     * In deze variabele zal de instantie van deze class worden opgeslagen
+     * Keeps singleton of the class
      *
      * @var object
      */
     private static $_instanceOfMe;
 
     /**
-     * De construct van deze class is private om te voorkomen dat hij van buitenaf
-     * aangeroepen kan worden
+     * The construct is made private to force users in using the class as a
+     * singleton
      *
-     * @return void
-     * @access private
      * @author WIM
      */
     private function __construct()
@@ -40,32 +38,28 @@ class ResponseHandler
     }
 
     /**
-     * Deze functie moet aangeroepen worden om een instantie van deze class te kunnen
-     * verkrijgen
+     * Initialize the class for the first time, or get the singleton instance
      *
-     * @return object  Een instantie van deze class
-     * @access public
+     * @return self An instance of the class
      * @author WIM
      */
     public static function init()
     {
-        // Controleer of de class al geiniteerd is door een andere aanroep
+        // Initialize the class if not yet available
         if (empty(self::$_instanceOfMe)) {
-            self::$_instanceOfMe = new self;
+            self::$_instanceOfMe = new self();
         }
 
-        // Geef een initiatie van de class terug
+        // Return the class instance
         return self::$_instanceOfMe;
     }
 
     /**
-     * Stel een bericht in die aan de gebruiker getoond moet worden
+     * Set the message for the user
      *
-     * @param string $message Het te tonen bericht
-     * @param string $class   Het soort bericht dat getoond moet worden
+     * @param string $message
+     * @param string $class   The class which should be used for displaying the message
      *
-     * @return void
-     * @access public
      * @author WIM
      */
     public function setMessage($message, $class = '')
@@ -77,10 +71,9 @@ class ResponseHandler
     }
 
     /**
-     * Gebruik deze functie als een andere view moet worden getoond dan waar de gebruiker
-     * op uit zou komen
+     * Use this method to use another view then the one expected based on the used controller + action
      *
-     * @param options Het gedeelte waarnaar de gebruiker doorverwezen moet worden
+     * @param options Define the view required to load
      *
      * @return void
      * @access public
@@ -105,12 +98,10 @@ class ResponseHandler
     }
 
     /**
-     * Gebruik deze functie om variabelen beschikbaar te maken voor de view
+     * Provide this variables within the view
      *
-     * @param array $vars De weer te geven vars
+     * @param array $vars
      *
-     * @return void
-     * @access public
      * @author WIM
      */
     public function setVars($vars = array())
@@ -119,7 +110,7 @@ class ResponseHandler
     }
 
     /**
-     * Haal de viewVars op
+     * Retrieve the variables for the view
      *
      * @return array
      * @access public

@@ -1,76 +1,64 @@
 <?php
 /**
- * Onderstaande class wordt gebruikt voor het opvangen en in gang zetten van
- * het omzettingsproces voor tekst naar braille
+ * This class is used to fetch provided text and show it as Braille
  *
  * @author WIM
  */
 class Braille
 {
-    /**
-     * De construct functie wordt als eerste aangeroepen
-     *
-     * @return void
-     * @access public
-     * @author WIM
-     */
     public function __construct()
     {
-        // Laad de benodigde bestanden in
+        // This files are required for the convertion process
         require_once(PR . '/handlers/requestHandler.class.php');
         require_once(PR . '/handlers/responseHandler.class.php');
         require_once(PR . '/handlers/brailleHandler.class.php');
 
-        // Initieer de request en de braille components
+        // Initiate the handlers and make them available within the class
         $this->requestHandler = RequestHandler::init();
         $this->responseHandler = ResponseHandler::init();
         $this->brailleHandler = BrailleHandler::init();
     }
 
     /**
-     * De convert functie wordt gebruikt om een opgegeven tekst om te zetten naar
-     * het braille schrift
+     * The convert method is used to convert the provided text to a Braille
+     * representation.
      *
-     * @return array  De view variabelen
+     * @return array  The view variables
      * @access public
      * @author WIM
      */
     public function convert()
     {
-        // Haal de parameters op
         $requestParam = $this->requestHandler->getRequestParam();
 
         $response = array(
             'text' => '',
         );
 
-        // Controleer of er een tekst aanwezig is, als dat niet het geval is, laad dan
-        // een foutmelding zien
+        // Return a message if no text has been provided by the user
         if (empty($requestParam['text'])) {
-            $this->responseHandler->setMessage('U moet een tekst ingeven.', 'error');
+            $this->responseHandler->setMessage('You need to provide a text.', 'error');
             $this->responseHandler->setView(array('controller' => 'home', 'action' => 'index'));
             $this->responseHandler->setVars($response);
             return;
         }
 
-        // Maak de tekst beschikbaar voor de view
+        // Store the initial text for optional display in the response
         $response['text'] = $requestParam['text'];
 
-        // Zet de tekst om naar braille
+        // Convert the provided text to a Braille notation
         $response['braille'] = $this->brailleHandler->convertText($requestParam['text']);
 
-        // Toon de finish stap
-        $this->responseHandler->setMessage('Uw tekst is succesvol omgezet.');
+        // Direct the user to the finish step with the final results
+        $this->responseHandler->setMessage('The text has been converted succesfully.');
         $this->responseHandler->setView(array('controller' => 'braille', 'action' => 'finish'));
         $this->responseHandler->setVars($response);
     }
 
     /**
-     * De finish functie is de laatste stap waarin het eindresultaat van de convertatie
-     * wordt getoond aan de gebruiker.
+     * This step is the final step for the user. In this step the user will
+     * see the end result of the convertion
      *
-     * @return array  De view variabelen
-     * @access public
      * @author WIM
      */
     public function finish()
